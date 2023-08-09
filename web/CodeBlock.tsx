@@ -23,20 +23,15 @@ type Predictions = {
 
 When given a prompt, you will generate a javascript version of that prompt.
 
-
-The javascript code will be a function called "process" which accepts an array of predictions and optionally returns an action.
-there should be no code before or after the function.
+The javascript code generated will be a function called "process" which accepts an array of predictions and return true if we are to proceed to the next step.
 
 You can use the "this" context of the function to store or retrieve any state you wish to save between calls.  The function is called once per second.
 
-IMPORTANT NOTE: you will reply with only javascript content and no other words.
-
-The action returned must be of the following values:
-{ type: 'notification', content: string } | { type: 'display', content: 'string' }
+IMPORTANT NOTE: you will reply with only javascript content and no other words. There should be no code before or after the function.
 `
 
 
-export type CodeEvalFunction = (p: Predictions) => void | { type: 'notification', content: string} | { type: 'display', content: string}
+export type CodeEvalFunction = (p: Predictions) => boolean
 
 type ChatGptResponse = {
     id: string,

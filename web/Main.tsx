@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { ElementRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Action } from './Action';
 import { Camera, Predictions } from './Camera';
 import { CodeBlock, CodeEvalFunction } from './CodeBlock';
 
@@ -8,19 +9,11 @@ export const {
   VITE_ROBOFLOW_PUBLISHABLE_KEY
 } = (import.meta as { env: {[key: string]: string} }).env
 
-function notification (content: string) {
-  if (Notification.permission === 'granted') {
-    new Notification(content)
-  } else if (Notification.permission === 'denied') {
-    alert(content)
-  } else {
-    Notification.requestPermission().finally(() => notification(content))
-  }
-}
 
 function Main() {
-  const [llmProcessor, setLlmProcessor] = useState<CodeEvalFunction>(() => () => {});
+  const [llmProcessor, setLlmProcessor] = useState<CodeEvalFunction>(() => () => false);
   const [onPredictions, setOnPredictions] = useState<(predictions: Predictions) => void>(() => () => {})
+  const action = useRef<ElementRef<typeof Action>>(null)
 
   useEffect(() => {
     setOnPredictions(() => (predictions: Predictions) => {
@@ -30,14 +23,14 @@ function Main() {
       if (!result) {
         return
       }
-      if (result && result.type === 'notification')
-        notification(result.content)
+      if (result && action.current)
+        action.current.trigger()
       });
   }, [llmProcessor]);
 
 
   const updateFunction = (f: any) => {
-    console.log('updating', f.toString())
+    console.log('updating call function', f.toString())
     setLlmProcessor(() => f);
   };
 
@@ -45,6 +38,7 @@ function Main() {
     <div>
       <Camera onPredictions={onPredictions} />
       <CodeBlock onEvalFunction={updateFunction} />
+      <Action ref={action} /> 
     </div>
   );
 }
