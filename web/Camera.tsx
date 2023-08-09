@@ -13,7 +13,8 @@ export type Predictions = {
     color: string
   }[]
   
-  
+let startCount = 0
+
 export function Camera(props: { onPredictions: (predictions: Predictions) => void }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [model, setModel] = useState<any>()
@@ -45,19 +46,31 @@ export function Camera(props: { onPredictions: (predictions: Predictions) => voi
   
     useEffect(() => {
       let stopped = false
+      let id = ++startCount
       const video = videoRef.current!
-      video.onloadeddata = async () => {
-        console.log('video loaded', model, videoRef.current, props.onPredictions)
-        while (!stopped) {
-          if (model) {
-            const predictions = await model.detect(video)
-            props.onPredictions(predictions)
-          }
-          await new Promise(resolve => setTimeout(resolve, 1000))
+
+      console.log('starting', id)
+      async function runPredictions () {
+        console.log('running ', id)
+        if (model) {
+          const predictions = await model.detect(video)
+          props.onPredictions(predictions)
         }
+        if (id === startCount) {
+          setTimeout(runPredictions, 1000)
+        } else {
+          console.log(id, startCount)
+        }
+      }
+
+      if (video.paused) {
+        video.onloadeddata = runPredictions
+      } else {
+        runPredictions()
       }
   
       return () => {
+        console.log('stopping', id)
         stopped = true
       }
     }, [model, videoRef, props.onPredictions])

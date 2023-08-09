@@ -3,18 +3,21 @@ MVP (garage door beep)
  - [X] integrate roboflow SDK
  - [x] integrate chatgpt API
  - [x] generate code block from prompt
- - [ ] store results in localstorage
- - [ ] enumerable result types
- - [ ] use any model
- - [ ] loading states
- - [ ] serverless LLM call and delete key
+ - [x] store results in localstorage
+ - [x] desktop notification instead of alert
+ - [ ] customize model
+ - [ ] visual enhancements / loading states
+ - [ ] publish / readme
 
 V1
- - [ ] integrate firebase sdk
- - [ ] store code block and prompt
+ - [ ] auth
+ - [ ] inform LLM of possible prediction classes
+ - [ ] integrate firebase sdk instead of localstorage
  - [ ] create integrations UI
+ - [ ] enumerable result types
  - [ ] test and validate javascript function after compiling
  
 V2
- - [ ] fancy integrations
- - [ ] show detection bounding boxes
+ - [ ] more integrations
+ - [ ] different model types
+ - [ ] debug mode - show detection bounding boxes etc

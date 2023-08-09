@@ -8,6 +8,16 @@ export const {
   VITE_ROBOFLOW_PUBLISHABLE_KEY
 } = (import.meta as { env: {[key: string]: string} }).env
 
+function notification (content: string) {
+  if (Notification.permission === 'granted') {
+    new Notification(content)
+  } else if (Notification.permission === 'denied') {
+    alert(content)
+  } else {
+    Notification.requestPermission().finally(() => notification(content))
+  }
+}
+
 function Main() {
   const [llmProcessor, setLlmProcessor] = useState<CodeEvalFunction>(() => () => {});
   const [onPredictions, setOnPredictions] = useState<(predictions: Predictions) => void>(() => () => {})
@@ -21,7 +31,7 @@ function Main() {
         return
       }
       if (result && result.type === 'notification')
-        alert(result.content)
+        notification(result.content)
       });
   }, [llmProcessor]);
 
