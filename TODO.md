@@ -4,6 +4,7 @@ MVP (garage door beep)
  - [x] integrate chatgpt API
  - [x] generate code block from prompt
  - [ ] store results in localstorage
+ - [ ] enumerable result types
  - [ ] use any model
  - [ ] loading states
  - [ ] serverless LLM call and delete key

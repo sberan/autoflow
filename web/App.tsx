@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import { useLocalStorage } from 'react-use'
 
 const {
   VITE_OPENAPI_KEY,
@@ -41,9 +42,8 @@ type ChatGptResponse = {
 
 function Camera(props: { onPredictions: (predictions: Predictions) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-
+  const [model, setModel] = useState<any>()
   useEffect(() => {
-    let stopped = false
     const roboflow = (window as any).roboflow
     roboflow.auth({
         publishable_key: VITE_ROBOFLOW_PUBLISHABLE_KEY
@@ -51,20 +51,12 @@ function Camera(props: { onPredictions: (predictions: Predictions) => void }) {
         model: "egohands-public",
         version: 9
     }).then(async (model: any) =>{
+      setModel(model)
       const video = videoRef.current
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      if (!video) {
-        throw new Error ('no video ref supplied!')
-      }
-      video.srcObject = stream
-      video.play()
-      
-      video.onloadeddata = async () => {
-        while (!stopped) {
-          const predictions = await model.detect(video)
-          props.onPredictions(predictions)
-          await new Promise(resolve => setTimeout(resolve, 1000))
-        }
+      if (video) {
+        video.srcObject = stream
+        video.play()
       }
     })
     .catch((error: any) => {
@@ -74,11 +66,30 @@ function Camera(props: { onPredictions: (predictions: Predictions) => void }) {
     return () => {
       const stream = videoRef.current?.srcObject as MediaStream
       stream?.getTracks().forEach(track => track.stop())
+    }
+  }, [videoRef]);
+
+  useEffect(() => {
+    let stopped = false
+    const video = videoRef.current!
+    video.onloadeddata = async () => {
+      console.log('video loaded', model, videoRef.current, props.onPredictions)
+      while (!stopped) {
+        if (model) {
+          const predictions = await model.detect(video)
+          props.onPredictions(predictions)
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+    }
+
+    return () => {
       stopped = true
     }
-  }, []);
+  }, [model, videoRef, props.onPredictions])
+  
   return (
-    <video ref={videoRef} autoPlay playsInline/>
+    <video style={{width: '300px', height: 'auto'}} ref={videoRef} autoPlay playsInline/>
   )
 }
 
@@ -101,20 +112,45 @@ type Predictions = {
 
 When given a prompt, you will generate a javascript version of that prompt.
 
+
+The javascript code will be a function called "process" which accepts an array of predictions and optionally returns an action.
+there should be no code before or after the function. you can use the "this" context of the function to store or retrieve any state you wish to save between calls.
+
 IMPORTANT NOTE: you will reply with only javascript content and no other words.
 
-The javascript code will be a function called "process" which accepts an array of predictions and optionally returns an action. 
-
 The action returned must be of the following values:
-{ type: 'alert', content: string } | { type: 'display', content: 'string' }
+{ type: 'notification', content: string } | { type: 'display', content: 'string' }
 `
 
-function CodeBlock () {
+function cleanMarkdownJs(markdown: string) {
+  const regex = /```javascript\s*function\s*\w*\s*\(\w*\)\s*{([\s\S]*)}\s*```/gm;
+  const match = regex.exec(markdown)
+  if (!match) {
+    throw new Error('malformed markdown: ' + markdown)
+  }
+  const body = match[1].trim()
+  return new Function('predictions', body).bind({}) as EvalFunction //TODO: validate
+}
+
+
+function CodeBlock (props: { onEvalFunction: (fn: EvalFunction) => void}) {
   const [editMode, setEditMode] = useState(true)
-  const [prompt, setPrompt] = useState('')
-  const [code, setCode] = useState('')
+  const [prompt, setPrompt] = useLocalStorage('prompt', '')
+  const [code, setCode] = useLocalStorage('code', '')
   const [llmLoading, setLlmLoading] = useState(false)
   const [llmError, setLlmError] = useState('')
+
+  useEffect(() => {
+    if (code) {
+      try {
+        props.onEvalFunction(cleanMarkdownJs(code))
+      } catch (err) {
+        console.error(err)
+        setLlmError('error compiling function result')
+      }
+    }
+  }, [code])
+
   const generateCode = () => {
     setLlmError('')
     setLlmLoading(true)
@@ -169,17 +205,38 @@ function CodeBlock () {
 
 }
 
-function Main () {
-  const [detected, setDetected] = useState(false)
-  const onPredictions = (p: Predictions) => {
-    setDetected(p.length > 0)
-  }
+type EvalFunction = (p: Predictions) => void | { type: 'notification', content: string} | { type: 'display', content: string}
 
-  return <div>
-    <Camera onPredictions={onPredictions}/>
-    {detected ? 'Detected' : ''}
-    <CodeBlock/>
-  </div>
+
+function Main() {
+  const [llmProcessor, setLlmProcessor] = useState<EvalFunction>(() => () => {});
+  const [onPredictions, setOnPredictions] = useState<(predictions: Predictions) => void>(() => () => {})
+
+  useEffect(() => {
+    setOnPredictions(() => (predictions: Predictions) => {
+      console.log('executing llm', predictions)
+      const result = llmProcessor(predictions)
+      console.log('result', result)
+      if (!result) {
+        return
+      }
+      if (result && result.type === 'notification')
+        alert(result.content)
+      });
+  }, [llmProcessor]);
+
+
+  const updateFunction = (f: any) => {
+    console.log('updating', f.toString())
+    setLlmProcessor(() => f);
+  };
+
+  return (
+    <div>
+      <Camera onPredictions={onPredictions} />
+      <CodeBlock onEvalFunction={updateFunction} />
+    </div>
+  );
 }
 
 createRoot(document.getElementById('root')!).render(<Main/>)
