@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useLocalStorage } from 'react-use';
 import { VITE_ROBOFLOW_PUBLISHABLE_KEY } from './Main';
 
 export type Predictions = {
@@ -17,49 +18,53 @@ let startCount = 0
 
 export function Camera(props: { onPredictions: (predictions: Predictions) => void }) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [modelName, setModelName] = useLocalStorage('modelName', 'egohands-public')
+    const [modelVersion, setModelVersion] = useLocalStorage('modelVersion', 9)
     const [model, setModel] = useState<any>()
+    
     useEffect(() => {
-      const roboflow = (window as any).roboflow
-      roboflow.auth({
-          publishable_key: VITE_ROBOFLOW_PUBLISHABLE_KEY
-      }).load({
-          model: "egohands-public",
-          version: 9
-      }).then(async (model: any) =>{
-        setModel(model)
+      navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
         const video = videoRef.current
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true })
         if (video) {
           video.srcObject = stream
           video.play()
         }
       })
-      .catch((error: any) => {
-        console.log(error)
-      })
-  
+
       return () => {
         const stream = videoRef.current?.srcObject as MediaStream
         stream?.getTracks().forEach(track => track.stop())
       }
-    }, [videoRef]);
+    }, [])
+    
+    useEffect(() => {
+      const roboflow = (window as any).roboflow
+      roboflow.auth({
+          publishable_key: VITE_ROBOFLOW_PUBLISHABLE_KEY
+      }).load({
+          model: modelName,
+          version: modelVersion
+      }).then(async (model: any) =>{
+        setModel(model)
+      })
+      .catch((error: any) => {
+        console.log(error)
+      })
+  
+    }, [modelName, modelVersion]);
   
     useEffect(() => {
       let stopped = false
       let id = ++startCount
       const video = videoRef.current!
 
-      console.log('starting', id)
       async function runPredictions () {
-        console.log('running ', id)
         if (model) {
           const predictions = await model.detect(video)
           props.onPredictions(predictions)
         }
         if (id === startCount) {
           setTimeout(runPredictions, 1000)
-        } else {
-          console.log(id, startCount)
         }
       }
 
@@ -75,7 +80,9 @@ export function Camera(props: { onPredictions: (predictions: Predictions) => voi
       }
     }, [model, videoRef, props.onPredictions])
     
-    return (
+    return <div>
       <video style={{width: '300px', height: 'auto'}} ref={videoRef} autoPlay playsInline/>
-    )
+      <input type="text" placeholder="Model Name" value={modelName} onChange={e => setModelName(e.target.value)}/>
+      <input type="text" placeholder="Model Version" value={modelVersion} onChange={e => setModelVersion(+e.target.value)}/>
+    </div>
   }
