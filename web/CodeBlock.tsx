@@ -3,7 +3,6 @@ import { useLocalStorage } from 'react-use'
 import { VITE_OPENAPI_KEY } from './Main'
 import { Predictions } from './Camera'
 
-
 const LLM_SYSTEM_PROMPT = `
 you are a tool for generating javascript code to take a specific action based on an array of predictions from a machine learning model.
 
@@ -29,6 +28,24 @@ You can use the "this" context of the function to store or retrieve any state yo
 
 IMPORTANT NOTE: you will reply with only javascript content and no other words. There should be no code before or after the function.
 `
+
+const DEFAULT_PROMPT = 'If a hand is detected for at least 5 seconds continuously'
+
+const DEFAULT_CODE = `\`\`\`javascript
+function process(predictions) {
+  this.handDetectedCount = this.handDetectedCount || 0;
+
+  const handDetected = predictions.some(prediction => prediction.class === 'hand');
+
+  if (handDetected) {
+    this.handDetectedCount++;
+  } else {
+    this.handDetectedCount = 0;
+  }
+
+  return this.handDetectedCount >= 5;
+}
+\`\`\``
 
 
 export type CodeEvalFunction = (p: Predictions) => boolean
@@ -60,21 +77,25 @@ function cleanMarkdownJs(markdown: string) {
     throw new Error('malformed markdown: ' + markdown)
   }
   const body = match[1].trim()
+  return '  ' + body
+}
+
+function evalFunction (body: string) {
   return new Function('predictions', body).bind({}) as CodeEvalFunction //TODO: validate
 }
 
 
 export function CodeBlock (props: { onEvalFunction: (fn: CodeEvalFunction) => void}) {
   const [editMode, setEditMode] = useState(true)
-  const [prompt, setPrompt] = useLocalStorage('prompt', '')
-  const [code, setCode] = useLocalStorage('code', '')
+  const [prompt, setPrompt] = useLocalStorage('prompt', DEFAULT_PROMPT)
+  const [code, setCode] = useLocalStorage('code', DEFAULT_CODE)
   const [llmLoading, setLlmLoading] = useState(false)
   const [llmError, setLlmError] = useState('')
 
   useEffect(() => {
     if (code) {
       try {
-        props.onEvalFunction(cleanMarkdownJs(code))
+        props.onEvalFunction(evalFunction(cleanMarkdownJs(code)))
       } catch (err) {
         console.error(err)
         setLlmError('error compiling function result')
@@ -150,7 +171,7 @@ export function CodeBlock (props: { onEvalFunction: (fn: CodeEvalFunction) => vo
   
   
     : <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center">
-        <pre className="bg-gray-100 p-4 rounded-md w-full text-sm overflow-x-auto">{code}</pre>
+        <pre className="bg-gray-100 p-4 rounded-md w-full text-sm overflow-x-auto">{cleanMarkdownJs(code || '')}</pre>
         <button 
           onClick={() => setEditMode(true)} 
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

@@ -44,10 +44,10 @@ export function Camera(props: { onPredictions: (predictions: Predictions) => voi
       setModelLoading(true)
       const roboflow = (window as any).roboflow
       roboflow.auth({
-          publishable_key: VITE_ROBOFLOW_PUBLISHABLE_KEY
+        publishable_key: VITE_ROBOFLOW_PUBLISHABLE_KEY
       }).load({
-          model: modelName,
-          version: modelVersion
+        model: modelName,
+        version: modelVersion
       }).then(async (model: any) =>{
         setModel(model)
       }).catch((error: any) => {
@@ -76,10 +76,7 @@ export function Camera(props: { onPredictions: (predictions: Predictions) => voi
       } else {
         runPredictions()
       }
-  
-      return () => {
-        console.log('stopping', id)
-      }
+      
     }, [model, videoRef, props.onPredictions])
     
     return <>

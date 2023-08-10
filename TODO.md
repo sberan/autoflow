@@ -9,7 +9,7 @@ MVP (stop touching your face)
  - [x] notification as separate "step"
  - [x] make it look decent
  - [x] camera / model / llm loading states
- - [ ] make sure everything works out of the box (incognito)
+ - [x] make sure everything works out of the box (incognito)
  - [ ] publish / readme
 
 V1
