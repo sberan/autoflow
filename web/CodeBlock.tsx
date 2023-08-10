@@ -148,24 +148,14 @@ export function CodeBlock (props: { onEvalFunction: (fn: CodeEvalFunction) => vo
         <label className="text-lg font-semibold text-gray-600">LLM Block</label>
         <div className="text-red-500 w-full text-center">{llmError}</div>
         {llmLoading && <div className="text-blue-500 w-full text-center">Generating...</div>}
-        <textarea 
-          value={prompt} 
-          onChange={x => setPrompt(x.currentTarget.value)} 
-          className="p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 h-24 resize-y"/>
+        <textarea value={prompt} onChange={x => setPrompt(x.currentTarget.value)} className="p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 h-24 resize-y"/>
         <div className="flex justify-between w-full">
-          <button 
-            onClick={generateCode} 
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <button onClick={generateCode} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Save
           </button>
-          {code && (
-            <button 
-              onClick={() => setEditMode(false)} 
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-            >
-              &lt;/&gt;
-            </button>
-          )}
+          {code && <button onClick={() => setEditMode(false)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+            &lt;/&gt;
+          </button>}
         </div>
       </div>
   

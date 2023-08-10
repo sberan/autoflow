@@ -22,9 +22,10 @@ function Main() {
       if (!result) {
         return
       }
-      if (result && action.current)
+      if (result && action.current) {
         action.current.trigger()
-      });
+      }
+    });
   }, [llmProcessor]);
 
 
