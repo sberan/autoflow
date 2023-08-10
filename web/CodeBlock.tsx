@@ -26,7 +26,7 @@ The javascript code generated will be a function called "process" which accepts 
 
 You can use the "this" context of the function to store or retrieve any state you wish to save between calls.  The function is called once per second.
 
-IMPORTANT NOTE: you will reply with only javascript content and no other words. There should be no code before or after the function.
+IMPORTANT NOTE: you will reply with only javascript content in a markdown block and no other words. There should be no code before or after the function.
 `
 
 const DEFAULT_PROMPT = 'If a hand is detected for at least 5 seconds continuously'
