@@ -13,6 +13,7 @@ MVP (stop touching your face)
  - [x] publish / readme
 
 V1
+ - [ ] search for models from within workflow
  - [ ] support multiple workflows
  - [ ] custom confidence
  - [ ] auth
@@ -23,8 +24,9 @@ V1
  - [ ] test and validate javascript function after compiling
  
 Beyond
+ - [ ] Generate initial flow using LLM
  - [ ] more integrations
- - [ ] additional triggers (remote, cron, etc)
+ - [ ] additional triggers (remote camera, cron, etc)
  - [ ] different model types (segmentation etc)
  - [ ] debug mode - show detection bounding boxes, store image that triggered action
  - [ ] link to "view mode" and install as PWA
