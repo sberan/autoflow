@@ -7,8 +7,9 @@ MVP (stop touching your face)
  - [x] desktop notification instead of alert
  - [x] customize model
  - [x] notification as separate "step"
- - [ ] visual enhancements
- - [ ] camera / model loading states
+ - [x] make it look decent
+ - [ ] camera / model / llm loading states
+ - [ ] make sure everything works out of the box (incognito)
  - [ ] publish / readme
 
 V1

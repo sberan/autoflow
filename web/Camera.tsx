@@ -80,9 +80,22 @@ export function Camera(props: { onPredictions: (predictions: Predictions) => voi
       }
     }, [model, videoRef, props.onPredictions])
     
-    return <div>
-      <video style={{width: '300px', height: 'auto'}} ref={videoRef} autoPlay playsInline/>
-      <input type="text" placeholder="Model Name" value={modelName} onChange={e => setModelName(e.target.value)}/>
-      <input type="text" placeholder="Model Version" value={modelVersion} onChange={e => setModelVersion(+e.target.value)}/>
-    </div>
+    return <>
+      <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center justify-center">
+        <label className="text-lg font-semibold text-gray-600">Camera</label>
+        <div>
+          <video ref={videoRef} autoPlay playsInline className="w-full h-40 rounded-md"/>
+        </div>
+      </div>
+
+      <div className="text-4xl">&darr;</div>
+
+      <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center">
+        <label className="text-lg font-semibold text-gray-600">Model</label>
+        <div className="flex items-center space-x-4 w-full">
+          <input type="text" placeholder="Model Name" value={modelName} onChange={e => setModelName(e.target.value)} className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 flex-grow"/>
+          <input type="text" placeholder="Model Version" value={modelVersion} onChange={e => setModelVersion(+e.target.value)} className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-16"/>
+        </div>
+      </div>
+    </>
   }

@@ -123,15 +123,39 @@ export function CodeBlock (props: { onEvalFunction: (fn: CodeEvalFunction) => vo
   }
 
   return editMode
-    ? <div>
-        {llmError} {llmLoading && 'loading...'}
-        <textarea value={prompt} onChange={x => setPrompt(x.currentTarget.value)}/>
-        <button onClick={generateCode}>Save</button>
-        {code && <button onClick={() => setEditMode(false)}>&lt;/&gt;</button> }
+    ? <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center">
+        <label className="text-lg font-semibold text-gray-600">LLM Block</label>
+        <div className="text-red-500 w-full text-center">{llmError}</div>
+        {llmLoading && <div className="text-blue-500 w-full text-center">Generating...</div>}
+        <textarea 
+          value={prompt} 
+          onChange={x => setPrompt(x.currentTarget.value)} 
+          className="p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 h-24 resize-y"/>
+        <div className="flex justify-between w-full">
+          <button 
+            onClick={generateCode} 
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Save
+          </button>
+          {code && (
+            <button 
+              onClick={() => setEditMode(false)} 
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+            >
+              &lt;/&gt;
+            </button>
+          )}
+        </div>
       </div>
-    : <div>
-        <code>{code}</code>
-        <button onClick={() => setEditMode(true)}>edit</button>
+  
+  
+    : <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center">
+        <pre className="bg-gray-100 p-4 rounded-md w-full text-sm overflow-x-auto">{code}</pre>
+        <button 
+          onClick={() => setEditMode(true)} 
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Edit
+        </button>
       </div>
 
 }

@@ -1,8 +1,9 @@
-import React, { ElementRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { ElementRef, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Action } from './Action';
-import { Camera, Predictions } from './Camera';
-import { CodeBlock, CodeEvalFunction } from './CodeBlock';
+import { Camera, Predictions } from './Camera'
+import { CodeBlock, CodeEvalFunction } from './CodeBlock'
+import './index.css'
 
 export const {
   VITE_OPENAPI_KEY,
@@ -17,9 +18,7 @@ function Main() {
 
   useEffect(() => {
     setOnPredictions(() => (predictions: Predictions) => {
-      console.log('executing llm', predictions)
       const result = llmProcessor(predictions)
-      console.log('result', result)
       if (!result) {
         return
       }
@@ -35,9 +34,12 @@ function Main() {
   };
 
   return (
-    <div>
+    <div className="mx-auto space-y-4 items-center flex flex-col">
+      <h1 className="text-4xl font-bold text-center max-w-2xl mx-auto">Autoflow</h1>
       <Camera onPredictions={onPredictions} />
+      <div className="text-4xl">&darr;</div>
       <CodeBlock onEvalFunction={updateFunction} />
+      <div className="text-4xl">&darr;</div>
       <Action ref={action} /> 
     </div>
   );
