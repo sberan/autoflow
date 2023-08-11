@@ -22,6 +22,7 @@ V1
  - [ ] more action types
  - [ ] additional workflow steps
  - [ ] test and validate javascript function after compiling
+ - [ ] add a visual indicator of notifications (useful for debugging, and would look neat)
  
 Beyond
  - [ ] Generate initial flow using LLM

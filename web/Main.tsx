@@ -18,11 +18,14 @@ function Main() {
 
   useEffect(() => {
     setOnPredictions(() => (predictions: Predictions) => {
+      console.log(predictions.map(x => x.class))
       const result = llmProcessor(predictions)
+      console.log(result)
       if (!result) {
         return
       }
       if (result && action.current) {
+        console.log('triggering alert')
         action.current.trigger()
       }
     });

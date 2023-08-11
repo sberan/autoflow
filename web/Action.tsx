@@ -3,10 +3,13 @@ import { useLocalStorage } from 'react-use'
 
 function fireNotification (content: string) {
     if (Notification.permission === 'granted') {
+      console.log('notifications granted')
       new Notification(content)
     } else if (Notification.permission === 'denied') {
+      console.log('notifications denied')
       alert(content)
     } else {
+      console.log('requesting notification permission')
       Notification.requestPermission().finally(() => fireNotification(content)) //TODO we could request notifications up front
     }
   }
