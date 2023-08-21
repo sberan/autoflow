@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import { VITE_OPENAPI_KEY } from './Main'
-import { Predictions } from './Camera'
+import { Predictions } from './Model'
 
 const LLM_SYSTEM_PROMPT = `
 you are a tool for generating javascript code to take a specific action based on an array of predictions from a machine learning model.
@@ -85,23 +85,13 @@ function evalFunction (body: string) {
 }
 
 
-export function CodeBlock (props: { onEvalFunction: (fn: CodeEvalFunction) => void}) {
+export function CodeBlock (props: { predictions?: Predictions, onAction: (a: boolean) => void }) {
   const [editMode, setEditMode] = useState(true)
   const [prompt, setPrompt] = useLocalStorage('prompt', DEFAULT_PROMPT)
   const [code, setCode] = useLocalStorage('code', DEFAULT_CODE)
+  const [compiledCode, setCompiledCode] = useState<CodeEvalFunction>(() => () => false)
   const [llmLoading, setLlmLoading] = useState(false)
   const [llmError, setLlmError] = useState('')
-
-  useEffect(() => {
-    if (code) {
-      try {
-        props.onEvalFunction(evalFunction(cleanMarkdownJs(code)))
-      } catch (err) {
-        console.error(err)
-        setLlmError('error compiling function result')
-      }
-    }
-  }, [code])
 
   const generateCode = () => {
     setLlmError('')
@@ -142,6 +132,29 @@ export function CodeBlock (props: { onEvalFunction: (fn: CodeEvalFunction) => vo
     })
     .finally(() => setLlmLoading(false))
   }
+
+  useEffect(() => {
+    if (code) {
+      try {
+        const sourceCode = cleanMarkdownJs(code)
+        console.log('updating source code:', sourceCode)
+        const evalFn = evalFunction(sourceCode)
+        console.log('source compiled:', evalFn)
+        setCompiledCode(() => evalFn)
+      } catch (err) {
+        console.error(err)
+        setLlmError('error compiling function result')
+      }
+    }
+  }, [code])
+
+  useEffect(() => {
+    if (compiledCode && props.predictions) {
+      const result = compiledCode(props.predictions)
+      console.log(props.predictions, result)
+      props.onAction(result)
+    }
+  }, [compiledCode, props.predictions, props.onAction])
 
   return editMode
     ? <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center">
