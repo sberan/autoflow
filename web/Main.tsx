@@ -4,6 +4,7 @@ import { Action } from './Notification';
 import { Camera } from './Camera'
 import './index.css'
 import { Flow } from './Flow';
+import { useLocalStorage } from 'react-use';
 
 export const {
   VITE_OPENAPI_KEY,
@@ -11,16 +12,33 @@ export const {
 } = (import.meta as { env: {[key: string]: string} }).env
 
 
+
 function Main() {
-  const [video, setVideo] = useState<HTMLVideoElement>()
+  const [numFlowsValue, setNumFlows] = useLocalStorage('numFlows', 1)
+  const numFlows = numFlowsValue || 1
+
+  function getDirection(id: number) {
+    const middle = ((numFlows + 1) / 2.0) - 1
+    if (id < middle) { return 'left' }
+    if (id > middle) { return 'right' }
+    return 'down'
+  }
+
+  const flows = [...Array(numFlows)].map((x, i) => {
+    return {
+      id: i.toString(),
+      direction: getDirection(i)
+    } as const
+  })
+
 
   return (
     <div className="mx-auto space-y-4 items-center flex flex-col">
       <h1 className="text-4xl font-bold text-center max-w-2xl mx-auto">Autoflow</h1>
-      <Camera onVideo={setVideo} />
       <div className="flex flex-row items-center">
-        <Flow video={video} id="0" direction="left" />
-        <Flow video={video} id="1" direction="right" />
+        {flows.map(({ id, direction }) =>
+          <Flow id={id} direction={direction} />
+        )}
       </div>
     </div>
   );
