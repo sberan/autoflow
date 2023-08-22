@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocalStorage } from 'react-use';
+import { Card, inputClass } from './Card';
 import { VITE_ROBOFLOW_PUBLISHABLE_KEY } from './Main';
 
 export type Predictions = {
@@ -61,15 +62,8 @@ export function Model(props: { video?: HTMLVideoElement, onPredictions: (p: Pred
 
     }, [model, props.video, props.onPredictions])
     
-    return <>
-
-      <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center">
-        <label className="text-lg font-semibold text-gray-600">Model</label>
-        {modelLoading && <div className="text-blue-500 w-full text-center">Initializing...</div>}
-        <div className="flex items-center space-x-4 w-full">
-          <input type="text" placeholder="Model Name" value={modelName} onChange={e => setModelName(e.target.value)} className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 flex-grow"/>
-          <input type="text" placeholder="Model Version" value={modelVersion} onChange={e => setModelVersion(+e.target.value)} className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-16"/>
-        </div>
-      </div>
-    </>
+    return <Card title="Model" loadingText={modelLoading ? 'Initializing...' : ''}>
+      <input type="text" placeholder="Model Name" value={modelName} onChange={e => setModelName(e.target.value)} className={inputClass('flex-grow')} />
+      <input type="text" placeholder="Model Version" value={modelVersion} onChange={e => setModelVersion(+e.target.value)} className={inputClass('w-16')} />
+    </Card>
   }
