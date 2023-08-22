@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Action } from './Action';
+import { Action } from './Notification';
 import { Camera } from './Camera'
 import { CodeBlock } from './CodeBlock'
 import { Model, Predictions } from './Model';

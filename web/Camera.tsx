@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { Card } from './Card';
 
 export function Camera(props: { onVideo: (v: HTMLVideoElement) => void }) {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -33,13 +34,7 @@ export function Camera(props: { onVideo: (v: HTMLVideoElement) => void }) {
       }
     }, [videoRef, props.onVideo])
 
-    return <>
-      <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center justify-center">
-        <label className="text-lg font-semibold text-gray-600">Camera</label>
-        {cameraLoading && <div className="text-blue-500 w-full text-center">Initializing...</div>}
-        <div>
-          <video ref={videoRef} autoPlay playsInline className="w-full h-40 rounded-md"/>
-        </div>
-      </div>
-    </>
+    return <Card title="Camera" loadingText={cameraLoading ? 'Initializing...' : ''}>
+      <video ref={videoRef} autoPlay playsInline className="w-full h-40 rounded-md"/>
+    </Card>
   }
