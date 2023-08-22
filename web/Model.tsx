@@ -15,11 +15,11 @@ export type Predictions = {
   color: string
 }[]
   
-let startCount = 0
+let startCount: {[key:string]: number} = {}
 
-export function Model(props: { video?: HTMLVideoElement, onPredictions: (p: Predictions) => void }) {
-    const [modelName, setModelName] = useLocalStorage('modelName', 'egohands-public')
-    const [modelVersion, setModelVersion] = useLocalStorage('modelVersion', 9)
+export function Model(props: { video?: HTMLVideoElement, onPredictions: (p: Predictions) => void, id: string }) {
+    const [modelName, setModelName] = useLocalStorage(`modelName-${props.id}`, 'egohands-public')
+    const [modelVersion, setModelVersion] = useLocalStorage(`modelVersion-${props.id}`, 9)
     const [model, setModel] = useState<any>()
     const [modelLoading, setModelLoading] = useState(true)
     
@@ -41,26 +41,27 @@ export function Model(props: { video?: HTMLVideoElement, onPredictions: (p: Pred
     }, [modelName, modelVersion]);
   
     useEffect(() => {
-      let id = ++startCount
+      startCount[props.id] ||= 0
+      let id = ++startCount[props.id]
       const video = props.video
       if (!video || !model || !props.onPredictions) {
         return
       }
       
       async function runPredictions () {
-        console.log(id, 'running')
+        console.log(props.id, id, 'running')
         if (model) {
           const predictions = await model.detect(video)
           props.onPredictions(predictions)
         }
-        if (startCount === id) { //ensure only latest version is run
+        if (startCount[props.id] === id) { //ensure only latest version is running
           setTimeout(runPredictions, 1000)
         }
       }
 
       runPredictions()
 
-    }, [model, props.video, props.onPredictions])
+    }, [model, props.video, props.onPredictions, props.id])
     
     return <Card title="Model" loadingText={modelLoading ? 'Initializing...' : ''}>
       <div className="flex-row">

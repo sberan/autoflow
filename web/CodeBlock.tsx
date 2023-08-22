@@ -86,10 +86,10 @@ function evalFunction (body: string) {
 }
 
 
-export function CodeBlock (props: { predictions?: Predictions, onAction: (a: boolean) => void }) {
+export function CodeBlock (props: { predictions?: Predictions, onAction: (a: boolean) => void, id: string }) {
   const [editMode, setEditMode] = useState(true)
-  const [prompt, setPrompt] = useLocalStorage('prompt', DEFAULT_PROMPT)
-  const [code, setCode] = useLocalStorage('code', DEFAULT_CODE)
+  const [prompt, setPrompt] = useLocalStorage(`prompt-${props.id}`, DEFAULT_PROMPT)
+  const [code, setCode] = useLocalStorage(`code-${props.id}`, DEFAULT_CODE)
   const [compiledCode, setCompiledCode] = useState<CodeEvalFunction>(() => () => false)
   const [llmLoading, setLlmLoading] = useState(false)
   const [llmError, setLlmError] = useState('')
@@ -140,7 +140,7 @@ export function CodeBlock (props: { predictions?: Predictions, onAction: (a: boo
         const sourceCode = cleanMarkdownJs(code)
         console.log('updating source code:', sourceCode)
         const evalFn = evalFunction(sourceCode)
-        console.log('source compiled:', evalFn)
+        console.log(props.id, 'source compiled:', evalFn)
         setCompiledCode(() => evalFn)
       } catch (err) {
         console.error(err)
@@ -152,7 +152,7 @@ export function CodeBlock (props: { predictions?: Predictions, onAction: (a: boo
   useEffect(() => {
     if (compiledCode && props.predictions) {
       const result = compiledCode(props.predictions)
-      console.log(props.predictions, result)
+      console.log(props.id, props.predictions, result)
       props.onAction(result)
     }
   }, [compiledCode, props.predictions, props.onAction])

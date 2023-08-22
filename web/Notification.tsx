@@ -15,8 +15,8 @@ function fireNotification (content: string) {
   }
 }
   
-export const Action = (props: { trigger: boolean }) => {
-  const [content, setContent] = useLocalStorage('actionContent', 'Stop touching your face!')
+export const Action = (props: { trigger: boolean, id: string }) => {
+  const [content, setContent] = useLocalStorage(`actionContent-${props.id}`, 'Stop touching your face!')
 
   useEffect(() => {
     if (content && props.trigger) {
