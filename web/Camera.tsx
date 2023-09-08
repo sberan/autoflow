@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useLocalStorage } from 'react-use';
 import { Card } from './Card';
+import { v4 as uuid } from 'uuid'
 
-export function Camera(props: { onVideo: (v: HTMLVideoElement) => void }) {
+export function Camera() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [cameraLoading, setCameraLoading] = useState(true)
+    const [videoLoaded, setVideoLoaded] = useState<HTMLVideoElement>()
+    const [childIds, setChildIds] = useLocalStorage('modelIds', [uuid()])
     
     useEffect(() => {
       navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
@@ -28,11 +32,11 @@ export function Camera(props: { onVideo: (v: HTMLVideoElement) => void }) {
       }
 
       if (video.paused) {
-        video.onloadeddata = () => props.onVideo(video)
+        video.onloadeddata = () => setVideoLoaded(video)
       } else {
-        props.onVideo(video)
+        setVideoLoaded(video)
       }
-    }, [videoRef, props.onVideo])
+    }, [videoRef])
 
     return <Card title="Camera" loadingText={cameraLoading ? 'Initializing...' : ''}>
       <video ref={videoRef} autoPlay playsInline className="w-full h-40 rounded-md"/>

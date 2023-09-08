@@ -36,9 +36,7 @@ function Main() {
     <div className="mx-auto space-y-4 items-center flex flex-col">
       <h1 className="text-4xl font-bold text-center max-w-2xl mx-auto">Autoflow</h1>
       <div className="flex flex-row items-center">
-        {flows.map(({ id, direction }) =>
-          <Flow id={id} direction={direction} />
-        )}
+        <Camera />
       </div>
     </div>
   );

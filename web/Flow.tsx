@@ -10,6 +10,7 @@ const arrows = {
   'down': '↓'
 }
 
+
 export function Flow (props: { video: HTMLVideoElement | undefined, direction: 'left' | 'right' | 'down', id: string }) {
   const [video, setVideo] = useState<HTMLVideoElement>()
   const [predictions, setPredictions] = useState<Predictions>()
