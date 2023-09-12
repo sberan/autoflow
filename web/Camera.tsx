@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'react-use';
-import { Card } from './Card';
+import { Card, arrows } from './Card';
 import { v4 as uuid } from 'uuid'
+import { Model } from './Model';
+
+
 
 export function Camera() {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -38,7 +41,12 @@ export function Camera() {
       }
     }, [videoRef])
 
-    return <Card title="Camera" loadingText={cameraLoading ? 'Initializing...' : ''}>
-      <video ref={videoRef} autoPlay playsInline className="w-full h-40 rounded-md"/>
-    </Card>
+    return <><Card title="Camera" loadingText={cameraLoading ? 'Initializing...' : ''}>
+        <video ref={videoRef} autoPlay playsInline className="w-full h-40 rounded-md"/>
+      </Card>
+
+      {arrows.down}
+
+      {videoLoaded && childIds?.map(id => <Model key={id} id={id} video={videoRef.current!} />)}
+    </>
   }

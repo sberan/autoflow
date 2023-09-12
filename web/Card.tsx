@@ -18,6 +18,14 @@ export const buttonClass = (type: 'primary' | 'secondary', additional:string = '
   return `${bgColor} ${textColor} font-bold py-2 px-4 rounded ${additional}`
 }
 
+
+
+export const arrows = {
+  'left': <div className="text-4xl">↙</div>,
+  'right': <div className="text-4xl">↘</div>,
+  'down': <div className="text-4xl">↓</div>
+}
+
 export function Card (props: { title: string, children: JSX.Element | JSX.Element[], loadingText?: string, errorText?: string, }) {
   return <>
     <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md flex flex-col space-y-4 items-center justify-center">
