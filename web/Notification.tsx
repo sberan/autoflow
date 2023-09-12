@@ -14,17 +14,39 @@ function fireNotification (content: string) {
     Notification.requestPermission().finally(() => fireNotification(content)) //TODO we could request notifications up front
   }
 }
-  
+
+function speak (content: string) {
+  const synth = window.speechSynthesis;
+  const utterance = new SpeechSynthesisUtterance(content);
+
+  synth.speak(utterance);
+}
+
+type ActionType = 'notification' | 'speak'
+
 export const Action = (props: { trigger: boolean, id: string }) => {
   const [content, setContent] = useLocalStorage(`actionContent-${props.id}`, 'Stop touching your face!')
+  const [type, setType] = useLocalStorage<ActionType>(`actionType-${props.id}`, 'notification')
 
   useEffect(() => {
-    if (content && props.trigger) {
+    if (!content || !props.trigger) {
+      return
+    }
+    if (type === 'notification') {
       fireNotification(content)
     }
-  }, [props.trigger])
 
-  return <Card title="Notification">
+    if (type === 'speak') {
+      speak(content)
+    }
+  }, [props.trigger, content, type])
+
+  return <Card title="Action">
+    <select value={type} onChange={e => setType(e.target.value as ActionType)}>
+      <option value='notification'>Notification</option>  
+      <option value='speak'>Speak</option>  
+    </select>
+
     <input type="text" value={content} onChange={e => setContent(e.target.value)} className={inputClass('w-full')}/>
   </Card>
 }
