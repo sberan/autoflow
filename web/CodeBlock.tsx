@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useLocalStorage } from 'react-use'
-import { arrows, buttonClass, Card, inputClass } from './Card'
+import { buttonClass, Card, CardList, inputClass } from './Card'
 import { VITE_OPENAPI_KEY } from './Main'
 import { Predictions } from './Model'
-import { v4 as uuid } from 'uuid'
-import { Action } from './Notification'
+import { Action } from './Action'
 
 const LLM_SYSTEM_PROMPT = `
 you are a tool for generating javascript code to take a specific action based on an array of predictions from a machine learning model.
@@ -88,7 +87,7 @@ function evalFunction (body: string) {
 }
 
 
-export function CodeBlock (props: { predictions?: Predictions, id: string }) {
+export function CodeBlock (props: { predictions?: Predictions, id: string, onClose?: () =>  void }) {
   const [editMode, setEditMode] = useState(true)
   const [prompt, setPrompt] = useLocalStorage(`prompt-${props.id}`, DEFAULT_PROMPT)
   const [code, setCode] = useLocalStorage(`code-${props.id}`, DEFAULT_CODE)
@@ -96,7 +95,6 @@ export function CodeBlock (props: { predictions?: Predictions, id: string }) {
   const [llmLoading, setLlmLoading] = useState(false)
   const [llmError, setLlmError] = useState('')
   const [actionTriggered, setActionTriggered] = useState(false)
-  const [actions, setActions] = useLocalStorage(`actions-${props.id}`, [uuid()])
 
   const generateCode = () => {
     setLlmError('')
@@ -162,7 +160,7 @@ export function CodeBlock (props: { predictions?: Predictions, id: string }) {
   }, [compiledCode, props.predictions])
 
   return <>
-    <Card title="LLM Block" loadingText={llmLoading ? 'Generating...' : ''} errorText={llmError}>
+    <Card title="LLM Block" loadingText={llmLoading ? 'Generating...' : ''} errorText={llmError} onClose={props.onClose}>
       {editMode
       ? <>
           <textarea value={prompt} onChange={x => setPrompt(x.currentTarget.value)} className={inputClass('resize-y w-96')}/>
@@ -182,10 +180,9 @@ export function CodeBlock (props: { predictions?: Predictions, id: string }) {
           </button>
         </>
       }
-  </Card>
+    </Card>
 
-  {arrows.down}
-
-  {actions?.map(id => <Action id={id} key={id} trigger={actionTriggered} />)}
-</>
+    <CardList storageKey={`actions-${props.id}`} item={(id, remove) => 
+      <Action id={id} key={id} trigger={actionTriggered} onClose={remove} /> }/>
+  </>
 }

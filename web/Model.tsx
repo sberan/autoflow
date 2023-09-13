@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocalStorage } from 'react-use'
-import { Card, arrows, inputClass } from './Card'
+import { Card, CardList, inputClass } from './Card'
 import { VITE_ROBOFLOW_PUBLISHABLE_KEY } from './Main'
-import { v4 as uuid } from 'uuid'
 import { CodeBlock } from './CodeBlock'
 
 export type Predictions = {
@@ -19,10 +18,9 @@ export type Predictions = {
   
 let startCount: {[key:string]: number} = {}
 
-export function Model(props: { video?: HTMLVideoElement, id: string }) {
+export function Model(props: { video?: HTMLVideoElement, id: string, onClose?: () => void }) {
     const [modelName, setModelName] = useLocalStorage(`modelName-${props.id}`, 'egohands-public')
     const [modelVersion, setModelVersion] = useLocalStorage(`modelVersion-${props.id}`, 9)
-    const [codeBlocks, setCodeBlocks] = useLocalStorage(`codeBlocks-${props.id}`, [uuid()])
     const [model, setModel] = useState<any>()
     const [modelLoading, setModelLoading] = useState(true)
     const [predictions, setPredictions] = useState<Predictions>([])
@@ -68,15 +66,14 @@ export function Model(props: { video?: HTMLVideoElement, id: string }) {
     }, [model, props.video, props.id])
     
     return <>
-      <Card title="Model" loadingText={modelLoading ? 'Initializing...' : ''}>
+      <Card title="Model" loadingText={modelLoading ? 'Initializing...' : ''} onClose={props.onClose}>
         <div className="flex-row">
           <input type="text" placeholder="Model Name" value={modelName} onChange={e => setModelName(e.target.value)} className={inputClass('flex-grow')} />
           <input type="text" placeholder="Model Version" value={modelVersion} onChange={e => setModelVersion(+e.target.value)} className={inputClass('w-16')} />
         </div>
       </Card>
       
-      {arrows.down}
-
-      {codeBlocks?.map(id => <CodeBlock id={id} key={id} predictions={predictions} />)}
+      <CardList storageKey={`codeBlocks-${props.id}`} item={(id, remove) =>
+        <CodeBlock id={id} key={id} predictions={predictions} onClose={remove} /> } />
     </>
   }

@@ -24,7 +24,7 @@ function speak (content: string) {
 
 type ActionType = 'notification' | 'speak'
 
-export const Action = (props: { trigger: boolean, id: string }) => {
+export const Action = (props: { trigger: boolean, id: string, onClose?: () => void }) => {
   const [content, setContent] = useLocalStorage(`actionContent-${props.id}`, 'Stop touching your face!')
   const [type, setType] = useLocalStorage<ActionType>(`actionType-${props.id}`, 'notification')
 
@@ -41,7 +41,7 @@ export const Action = (props: { trigger: boolean, id: string }) => {
     }
   }, [props.trigger, content, type])
 
-  return <Card title="Action">
+  return <Card title="Action" onClose={props.onClose}>
     <select value={type} onChange={e => setType(e.target.value as ActionType)}>
       <option value='notification'>Notification</option>  
       <option value='speak'>Speak</option>  

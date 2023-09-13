@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useLocalStorage } from 'react-use';
-import { Card, arrows } from './Card';
-import { v4 as uuid } from 'uuid'
+import { Card, CardList } from './Card'
 import { Model } from './Model';
 
 
@@ -10,7 +8,6 @@ export function Camera() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [cameraLoading, setCameraLoading] = useState(true)
     const [videoLoaded, setVideoLoaded] = useState<HTMLVideoElement>()
-    const [childIds, setChildIds] = useLocalStorage('modelIds', [uuid()])
     
     useEffect(() => {
       navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
@@ -45,8 +42,9 @@ export function Camera() {
         <video ref={videoRef} autoPlay playsInline className="w-full h-40 rounded-md"/>
       </Card>
 
-      {arrows.down}
-
-      {videoLoaded && childIds?.map(id => <Model key={id} id={id} video={videoRef.current!} />)}
+      {videoLoaded &&
+        <CardList storageKey="modelIds" item={(id, remove) =>
+          <Model key={id} id={id} video={videoRef.current!} onClose={remove} />} />
+      }
     </>
   }
